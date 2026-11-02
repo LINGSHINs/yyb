@@ -549,7 +549,7 @@ function renderCalendar() {
 
     const numDiv = document.createElement('div');
     numDiv.className = 'day-number';
-    numDiv.textContent = `${d}日 ${WEEKDAYS_CN[date.getDay()]}`;
+    numDiv.textContent = String(d);
     cell.appendChild(numDiv);
 
     const badgesDiv = document.createElement('div');
