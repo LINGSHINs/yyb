@@ -26,53 +26,24 @@
   --header-bg: #ffffff;
 }
 [data-theme="dark"] {
-  --bg: #1a1a2e;
-  --card-bg: #252535;
-  --card-border: #3a3a4a;
-  --text: #e4e4e8;
-  --text-secondary: #aaa;
-  --text-tertiary: #777;
-  --accent: #5B8FF9;
-  --accent-light: #2a3550;
+  --bg: #12131a;
+  --card-bg: #1c1e28;
+  --card-border: #2b2e3d;
+  --text: #e8eaf2;
+  --text-secondary: #9aa0b4;
+  --text-tertiary: #62688a;
+  --accent: #6f9bff;
+  --accent-light: #232c42;
   --accent-text: #ffffff;
-  --weekend-bg: #2a2820;
-  --today-border: #7B9BFF;
-  --shadow: 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
-  --header-bg: #252535;
+  --weekend-bg: #1c1e28;
+  --today-border: #6f9bff;
+  --shadow: 0 2px 10px rgba(0,0,0,0.35);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,0.5);
+  --header-bg: #171822;
 }
-[data-theme="ocean"] {
-  --bg: #e6f4f9; --card-bg: #ffffff; --card-border: #cfe7f0;
-  --text: #0a3d5c; --text-secondary: #5a8da0; --text-tertiary: #9bc4d4;
-  --accent: #13c2c2; --accent-light: #e0fffa; --accent-text: #ffffff;
-  --weekend-bg: #fff5ed; --today-border: #13c2c2;
-  --shadow: 0 2px 8px rgba(19,194,194,0.1); --shadow-lg: 0 8px 24px rgba(19,194,194,0.15);
-  --header-bg: #ffffff;
-}
-[data-theme="forest"] {
-  --bg: #f0f6ed; --card-bg: #ffffff; --card-border: #d4e8c8;
-  --text: #1a3a0e; --text-secondary: #5a8a4a; --text-tertiary: #9bc488;
-  --accent: #52c41a; --accent-light: #edffe0; --accent-text: #ffffff;
-  --weekend-bg: #fff8ed; --today-border: #52c41a;
-  --shadow: 0 2px 8px rgba(82,196,26,0.1); --shadow-lg: 0 8px 24px rgba(82,196,26,0.15);
-  --header-bg: #ffffff;
-}
-[data-theme="sunset"] {
-  --bg: #fff5ed; --card-bg: #ffffff; --card-border: #ffdcc4;
-  --text: #5c2a0a; --text-secondary: #b0683a; --text-tertiary: #d4a274;
-  --accent: #fa8c16; --accent-light: #fff0d4; --accent-text: #ffffff;
-  --weekend-bg: #fef0e8; --today-border: #fa8c16;
-  --shadow: 0 2px 8px rgba(250,140,22,0.1); --shadow-lg: 0 8px 24px rgba(250,140,22,0.15);
-  --header-bg: #ffffff;
-}
-[data-theme="lavender"] {
-  --bg: #f3edff; --card-bg: #ffffff; --card-border: #dccff0;
-  --text: #2a1850; --text-secondary: #6a5a8a; --text-tertiary: #a89bc4;
-  --accent: #9b6fde; --accent-light: #f0e8ff; --accent-text: #ffffff;
-  --weekend-bg: #fff5ed; --today-border: #9b6fde;
-  --shadow: 0 2px 8px rgba(155,111,222,0.1); --shadow-lg: 0 8px 24px rgba(155,111,222,0.15);
-  --header-bg: #ffffff;
-}
+[data-theme="dark"] body { background: var(--bg); }
+[data-theme="dark"] .badge { filter: brightness(1.25) saturate(1.1); }
+[data-theme="dark"] .day-cell:hover { background: #22242f; }
 
 /* ==================== Reset ==================== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -125,17 +96,15 @@ body {
   font-weight: 700;
   white-space: nowrap;
 }
-.theme-switcher { display: flex; gap: 6px; align-items: center; }
-.theme-btn {
-  width: 24px; height: 24px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all var(--transition);
-  padding: 0;
+.theme-toggle {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg); color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: var(--transition);
 }
-.theme-btn.active { border-color: var(--text); transform: scale(1.2); }
-.theme-btn:hover { transform: scale(1.15); }
+.theme-toggle svg { width: 17px; height: 17px; }
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
 
 /* Toolbar */
 .toolbar {
@@ -352,13 +321,10 @@ body {
     <div class="header-center">
       <input type="text" id="nameInput" class="name-input" placeholder="输入你的名字" maxlength="10">
       <h1>接车排班表</h1>
-      <div class="theme-switcher" id="themeSwitcher">
-        <button class="theme-btn active" data-theme="light" style="background:#f0f2f5" title="浅色"></button>
-        <button class="theme-btn" data-theme="dark" style="background:#1a1a2e" title="深色"></button>
-        <button class="theme-btn" data-theme="ocean" style="background:#13c2c2" title="海洋蓝"></button>
-        <button class="theme-btn" data-theme="forest" style="background:#52c41a" title="森林绿"></button>
-        <button class="theme-btn" data-theme="sunset" style="background:#fa8c16" title="日落橙"></button>
-        <button class="theme-btn" data-theme="lavender" style="background:#9b6fde" title="薰衣草"></button>
+      <button class="theme-toggle" id="themeToggle" title="切换昼夜">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
       </div>
     </div>
   </header>
@@ -412,9 +378,9 @@ const WEEKDAYS_CN = ['日','一','二','三','四','五','六'];
 // 锚定日期：排班从此日期开始，所有人看到同一份不可修改的排班
 const ANCHOR_DATE = new Date(2026, 8, 1); // 2026-09-01
 
-const PREF_KEY = 'car_pickup_prefs_v2';
+const PREF_KEY = 'car_pickup_prefs_v3';
 let currentMonth = new Date();
-let prefs = { theme: 'light', userName: '' };
+let prefs = { theme: 'auto', userName: '' };
 
 // ==================== 工具函数 ====================
 function fmtDate(d) {
@@ -609,15 +575,31 @@ function openDayModal(dateStr) {
   overlay.classList.add('show');
 }
 
-// ==================== 主题 ====================
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  prefs.theme = theme;
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.theme === theme);
-  });
-  savePrefs();
+// ==================== 主题（auto/light/dark） ====================
+function systemPrefersDark(){
+  const h=new Date().getHours();
+  if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return true;
+  return h>=18||h<7; // 无媒体查询支持时按时间兜底
 }
+function effectiveTheme(){ return prefs.theme==='auto' ? (systemPrefersDark()?'dark':'light') : prefs.theme; }
+function applyTheme(){
+  const t=effectiveTheme();
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('iconMoon').style.display = t==='dark'?'none':'block';
+  document.getElementById('iconSun').style.display  = t==='dark'?'block':'none';
+}
+function cycleTheme(){
+  // auto → light → dark → auto
+  prefs.theme = prefs.theme==='auto'?'light':(prefs.theme==='light'?'dark':'auto');
+  savePrefs();applyTheme();
+  showToast(prefs.theme==='auto'?'自动（跟随白天/夜晚）':prefs.theme==='light'?'白天模式':'夜间模式');
+}
+document.getElementById('themeToggle').addEventListener('click',cycleTheme);
+if(window.matchMedia){
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(prefs.theme==='auto')applyTheme()});
+}
+setInterval(()=>{if(prefs.theme==='auto')applyTheme()},600000); // 每10分钟校时
+
 
 // ==================== 渲染入口 ====================
 function renderAll() {
@@ -640,10 +622,7 @@ function initEvents() {
     renderAll();
   });
 
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
-  });
-
+  
   const nameInput = document.getElementById('nameInput');
   nameInput.addEventListener('input', (e) => {
     prefs.userName = e.target.value.trim();
