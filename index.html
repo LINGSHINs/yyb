@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>接车排班表 · Beta组循环</title>
+<title>接车排班表</title>
 <style>
 /* ==================== 主题变量 ==================== */
 :root {
@@ -203,7 +203,7 @@ body {
   font-weight: 600;
   color: var(--text-secondary);
 }
-.calendar-header .weekend { color: var(--accent); }
+.calendar-header .weekend { color: #e54d42; }
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -224,7 +224,7 @@ body {
 .day-cell:hover { background: var(--accent-light); }
 .day-cell.empty { background: var(--bg); cursor: default; }
 .day-cell.empty:hover { background: var(--bg); }
-.day-cell.weekend { background: var(--weekend-bg); }
+.day-cell.weekend { background: var(--card-bg); }
 .day-cell.weekend:hover { background: var(--accent-light); }
 .day-cell.past { opacity: 0.5; }
 .day-cell.today { box-shadow: inset 0 0 0 2px var(--today-border); }
