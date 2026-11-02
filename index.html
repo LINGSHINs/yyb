@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>接车排班表</title>
+<title>接车排班表 · Beta组循环</title>
 <style>
 /* ==================== 主题变量 ==================== */
 :root {
@@ -401,7 +401,7 @@ body {
 // ==================== 配置 ====================
 const MEMBERS = ['杰灵','逸雯','怡萱','钟颖','敬婷','欣悦','小红','慧瑜','春燕','婉晴'];
 const WEEKDAY_POOL = ['杰灵','逸雯','怡萱','钟颖','敬婷','欣悦','小红','慧瑜','春燕','婉晴'];
-const WEEKEND_POOL = ['杰灵','逸雯','怡萱','钟颖','敬婷','欣悦','小红','慧瑜','春燕','婉晴'];
+const WEEKEND_POOL = ['杰灵','逸雯','怡萱','钟颖','敬婷','欣悦','小红','慧瑜','婉晴'];
 const STEP = 2;
 const PERSON_COLORS = {
   '杰灵':'#5B8FF9','逸雯':'#9B6FDE','怡萱':'#F759AB','钟颖':'#36CFC9',
@@ -449,76 +449,61 @@ function loadPrefs() {
   } catch(e) {}
 }
 
-// ==================== 排班算法：双池轮转（锚定日期驱动） ====================
-// 从锚定日期起，工作日池9人步长2轮转，周末池8人步长2轮转
-// 纯函数计算，所有人得到相同结果，不可修改
+// ==================== 排班算法 v2 Beta：5 组循环错位 ====================
+// 10人分5组(锚定顺序每组2人): 组0[杰灵,逸雯] 组1[怡萱,钟颖] 组2[敬婷,欣悦] 组3[小红,慧瑜] 组4[春燕,婉晴]
+// 工作日: 第w周(自锚定周起) 组g 值 (g+w)%5 对应的星期(周一=0..周五=4) → 每人每周一天, 星期位置每周轮换
+// 周末: 第w周 周六=组(g+s)%5, 周日=组(g+s+1)%5, s每周+1 → 轮流周末
+const GROUP_SIZE=2;
+function getGroups(pool){
+  const g=[];for(let i=0;i<pool.length;i+=GROUP_SIZE)g.push(pool.slice(i,i+GROUP_SIZE));return g;
+}
+function weekIndex(d){ // 自锚定日所在周(周一为一周开始)的周序号
+  const cur=new Date(d);cur.setHours(0,0,0,0);
+  // 找到本周周一
+  const dow=(cur.getDay()+6)%7;
+  cur.setDate(cur.getDate()-dow);
+  const a=new Date(ANCHOR_DATE);a.setHours(0,0,0,0);
+  const adow=(a.getDay()+6)%7;
+  a.setDate(a.getDate()-adow);
+  return Math.round((cur-a)/604800000);
+}
 
-// 计算从锚定日期到目标日期之间，指定类型（工作日/周末）的天数（不含目标日）
-function countDaysOfType(from, to, weekend) {
-  let count = 0;
-  const cur = new Date(from);
-  cur.setHours(0,0,0,0);
-  const end = new Date(to);
-  end.setHours(0,0,0,0);
-  while (cur < end) {
-    if (isWeekend(cur) === weekend) count++;
-    cur.setDate(cur.getDate() + 1);
+function countWeekendDays(from,to){
+  let c=0;const cur=new Date(from);cur.setHours(0,0,0,0);
+  const end=new Date(to);end.setHours(0,0,0,0);
+  while(cur<end){if(isWeekend(cur))c++;cur.setDate(cur.getDate()+1)}
+  return c;
+}
+function getScheduleForDate(date){
+  if(date<ANCHOR_DATE)return[];
+  const w=weekIndex(date);
+  const we=isWeekend(date);
+  const pool=we?WEEKEND_POOL:WEEKDAY_POOL;
+  const groups=getGroups(pool);
+  const G=groups.length;
+  const wd=(date.getDay()+6)%7; // 周一=0..周日=6
+  if(!we){
+    const g=((wd%G)+w)%G; // 周一..周五 = wd 0..4, 错位循环
+    return groups[g];
+  }else{
+    // 周末: 9人池(无春燕), 第k个周末日步长2轮转取连续2人 — 均匀公平
+    const pool=WEEKEND_POOL;
+    const k=countWeekendDays(ANCHOR_DATE,date);
+    const st=(k*2)%pool.length;
+    return [pool[st],pool[(st+1)%pool.length]];
   }
-  return count;
 }
-
-// 纯函数：给定日期，返回排班人员
-function getScheduleForDate(date) {
-  if (date < ANCHOR_DATE) return [];
-
-  const we = isWeekend(date);
-  const pool = we ? WEEKEND_POOL : WEEKDAY_POOL;
-  const count = countDaysOfType(ANCHOR_DATE, date, we);
-  const start = (count * STEP) % pool.length;
-  return [pool[start], pool[(start + 1) % pool.length]];
-}
-
-// 生成整月排班（用于日历渲染）
-function generateMonthSchedule(year, month) {
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month+1, 0);
-
-  // 计算月首之前的工作日数和周末数
-  let wdCount = countDaysOfType(ANCHOR_DATE, firstDay, false);
-  let weCount = countDaysOfType(ANCHOR_DATE, firstDay, true);
-
-  const schedule = {};
-  const cur = new Date(firstDay);
-  while (cur <= lastDay) {
-    const dateStr = fmtDate(cur);
-    if (cur >= ANCHOR_DATE) {
-      const we = isWeekend(cur);
-      if (we) {
-        const start = (weCount * STEP) % WEEKEND_POOL.length;
-        schedule[dateStr] = [WEEKEND_POOL[start], WEEKEND_POOL[(start+1) % WEEKEND_POOL.length]];
-        weCount++;
-      } else {
-        const start = (wdCount * STEP) % WEEKDAY_POOL.length;
-        schedule[dateStr] = [WEEKDAY_POOL[start], WEEKDAY_POOL[(start+1) % WEEKDAY_POOL.length]];
-        wdCount++;
-      }
-    }
-    cur.setDate(cur.getDate() + 1);
+function getMonthSchedule(year,month){
+  const sched={};
+  const first=new Date(year,month,1),last=new Date(year,month+1,0);
+  const cur=new Date(first);
+  while(cur<=last){
+    if(cur>=ANCHOR_DATE)sched[fmtDate(cur)]=getScheduleForDate(cur);
+    cur.setDate(cur.getDate()+1);
   }
-  return schedule;
+  return sched;
 }
-
-// 缓存当月排班
-let cachedMonth = null;
-let cachedSchedule = null;
-function getMonthSchedule(year, month) {
-  const key = `${year}-${month}`;
-  if (cachedMonth !== key) {
-    cachedMonth = key;
-    cachedSchedule = generateMonthSchedule(year, month);
-  }
-  return cachedSchedule;
-}
+function generateMonthSchedule(y,m){return getMonthSchedule(y,m)}
 
 // ==================== 日历渲染 ====================
 function renderCalendar() {
