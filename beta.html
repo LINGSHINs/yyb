@@ -401,7 +401,7 @@ body {
 // ==================== 配置 ====================
 const MEMBERS = ['杰灵','逸雯','怡萱','钟颖','敬婷','欣悦','小红','慧瑜','春燕','婉晴'];
 const WEEKDAY_POOL = ['杰灵','逸雯','怡萱','钟颖','敬婷','欣悦','小红','慧瑜','春燕','婉晴'];
-const WEEKEND_POOL = ['杰灵','逸雯','怡萱','钟颖','敬婷','欣悦','小红','慧瑜','春燕','婉晴'];
+const WEEKEND_POOL = ['杰灵','逸雯','怡萱','钟颖','敬婷','欣悦','小红','慧瑜','婉晴'];
 const STEP = 2;
 const PERSON_COLORS = {
   '杰灵':'#5B8FF9','逸雯':'#9B6FDE','怡萱':'#F759AB','钟颖':'#36CFC9',
@@ -467,6 +467,13 @@ function weekIndex(d){ // 自锚定日所在周(周一为一周开始)的周序�
   a.setDate(a.getDate()-adow);
   return Math.round((cur-a)/604800000);
 }
+
+function countWeekendDays(from,to){
+  let c=0;const cur=new Date(from);cur.setHours(0,0,0,0);
+  const end=new Date(to);end.setHours(0,0,0,0);
+  while(cur<end){if(isWeekend(cur))c++;cur.setDate(cur.getDate()+1)}
+  return c;
+}
 function getScheduleForDate(date){
   if(date<ANCHOR_DATE)return[];
   const w=weekIndex(date);
@@ -479,10 +486,11 @@ function getScheduleForDate(date){
     const g=((wd%G)+w)%G; // 周一..周五 = wd 0..4, 错位循环
     return groups[g];
   }else{
-    // 周末两天: 周六=组(w%G), 周日=组((w+1)%G), 且每周错位 (w*2) 起点
-    const base=(w*2)%G;
-    const g=wd===5?base:(base+1)%G;
-    return groups[g];
+    // 周末: 9人池(无春燕), 第k个周末日步长2轮转取连续2人 — 均匀公平
+    const pool=WEEKEND_POOL;
+    const k=countWeekendDays(ANCHOR_DATE,date);
+    const st=(k*2)%pool.length;
+    return [pool[st],pool[(st+1)%pool.length]];
   }
 }
 function getMonthSchedule(year,month){
